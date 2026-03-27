@@ -1,178 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CrickDRS</title>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
-
-    body,html{
-      height:100%; display:flex; justify-content:center; align-items:center;
-      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    }
-
-    .container{
-      text-align:center; width:100%; max-width:750px; padding:25px;
-      border-radius:20px; background:rgba(0,0,0,0.75);
-      backdrop-filter:blur(15px);
-      box-shadow:0 15px 40px rgba(0,0,0,0.5);
-    }
-
-    h1{
-      font-size:3rem; color:#00e6ff; margin-bottom:15px;
-      text-shadow:0 0 20px rgba(0,230,255,0.8);
-    }
-
-    .video{
-      width:100%; border:4px solid #00e6ff; border-radius:20px;
-      background:black; box-shadow:0 0 30px rgba(0,230,255,0.6);
-    }
-
-    /* Timeline */
-    .timeline{
-      width:100%; margin-top:10px;
-    }
-
-    .time-text{
-      color:white; font-size:0.9rem; margin-top:5px;
-    }
-
-    .controls{
-      margin-top:20px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
-    }
-
-    .btn{
-      border:none; color:white; padding:10px 18px;
-      border-radius:25px; cursor:pointer; font-weight:bold;
-      transition:0.3s; box-shadow:0 5px 15px rgba(0,0,0,0.4);
-    }
-
-    #start{background:linear-gradient(45deg,#00ff87,#00c9a7);}    
-    #end{background:linear-gradient(45deg,#ff416c,#ff4b2b);}    
-    #forward{background:linear-gradient(45deg,#36d1dc,#5b86e5);}    
-    #backward{background:linear-gradient(45deg,#8360c3,#2ebf91);}    
-    #forward-fast{background:linear-gradient(45deg,#f7971e,#ffd200);}    
-    #backward-fast{background:linear-gradient(45deg,#ff6a00,#ee0979);}    
-    #out{background:red;}    
-    #notout{background:green;}    
-
-    .btn:hover{ transform:scale(1.1); filter:brightness(1.2); }
-
-    .upload-section{ margin-top:20px; }
-
-    .upload-btn{
-      background:linear-gradient(45deg,#ff512f,#dd2476);
-      padding:10px 20px; border-radius:25px; color:white; cursor:pointer;
-      font-weight:bold; text-decoration:none;
-    }
-
-    input[type="file"]{ display:none; }
-
-    /* Decision overlay */
-    .decision{
-      position:absolute; top:0; left:0; width:100%; height:100%;
-      display:flex; justify-content:center; align-items:center;
-      font-size:4rem; font-weight:bold; color:white;
-      opacity:0; pointer-events:none; transition:0.5s;
-    }
-
-    .decision.show{ opacity:1; }
-
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrickDRS</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body,html{height:100%;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);} 
+.container{width:100%;max-width:750px;padding:25px;border-radius:20px;background:rgba(0,0,0,0.75);text-align:center;}
+h1{color:#00e6ff;margin-bottom:10px;}
+.video{width:100%;border-radius:15px;border:3px solid #00e6ff;}
+.controls{margin-top:15px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.btn{padding:10px 15px;border:none;border-radius:25px;color:white;font-weight:bold;cursor:pointer;transition:0.3s;}
+.btn:hover{transform:scale(1.1);} 
+#play{background:#00c9a7;} #start{background:#00ff87;} #end{background:#ff4b2b;} 
+#forward{background:#5b86e5;} #backward{background:#8360c3;} 
+#forward-fast{background:#ffd200;} #backward-fast{background:#ee0979;} 
+#slow{background:#ff9800;} #normal{background:#4caf50;} 
+.timeline{width:100%;margin-top:10px;}
+.time-text{color:white;font-size:0.9rem;margin-top:5px;}
+.upload-btn{display:inline-block;margin-top:15px;padding:10px 20px;border-radius:25px;background:#ff512f;color:white;cursor:pointer;}
+input{display:none;}
+</style>
 </head>
 <body>
-
 <div class="container">
-  <h1>🎯 CrickDRS</h1>
+<h1>🎯 CrickDRS</h1>
+<video id="video" class="video"></video>
 
-  <div style="position:relative;">
-    <video id="video" class="video"></video>
-    <div id="decision" class="decision"></div>
-  </div>
+<input type="range" id="timeline" class="timeline" min="0" max="100" value="0">
+<div id="timeText" class="time-text">0:00 / 0:00</div>
 
-  <!-- Timeline -->
-  <input type="range" id="timeline" class="timeline" min="0" max="100" value="0">
-  <div id="timeText" class="time-text">0:00 / 0:00</div>
+<div class="controls">
+<button id="start" class="btn">⏮</button>
+<button id="backward-fast" class="btn">⏪</button>
+<button id="backward" class="btn">⬅</button>
+<button id="play" class="btn">▶</button>
+<button id="forward" class="btn">➡</button>
+<button id="forward-fast" class="btn">⏩</button>
+<button id="end" class="btn">⏭</button>
+<button id="slow" class="btn">🐢 0.25x</button>
+</div>
 
-  <div class="controls">
-    <button id="start" class="btn">⏮</button>
-    <button id="backward-fast" class="btn">⏪</button>
-    <button id="backward" class="btn">⬅</button>
-    <button id="forward" class="btn">➡</button>
-    <button id="forward-fast" class="btn">⏩</button>
-    <button id="end" class="btn">⏭</button>
-  </div>
-
-  <!-- Decision buttons -->
-  <div class="controls">
-    <button id="out" class="btn">❌ OUT</button>
-    <button id="notout" class="btn">✅ NOT OUT</button>
-  </div>
-
-  <div class="upload-section">
-    <label for="fileUpload" class="upload-btn">📂 Upload Video</label>
-    <input type="file" id="fileUpload" accept="video/*">
-  </div>
+<label for="fileUpload" class="upload-btn">📂 Upload Video</label>
+<input type="file" id="fileUpload" accept="video/*">
 </div>
 
 <script>
-const video = document.getElementById('video');
-const timeline = document.getElementById('timeline');
-const timeText = document.getElementById('timeText');
-const decision = document.getElementById('decision');
+const video=document.getElementById('video');
+const timeline=document.getElementById('timeline');
+const timeText=document.getElementById('timeText');
+const playBtn=document.getElementById('play');
+const slowBtn=document.getElementById('slow');
 
 // upload
-fileUpload.addEventListener('change',(e)=>{
-  const file = e.target.files[0];
-  if(file){
-    video.src = URL.createObjectURL(file);
-  }
-});
+fileUpload.onchange=e=>{
+ const file=e.target.files[0];
+ if(file){video.src=URL.createObjectURL(file);} 
+};
 
 // timeline update
-video.addEventListener('timeupdate',()=>{
-  timeline.value = (video.currentTime / video.duration) * 100 || 0;
+video.ontimeupdate=()=>{
+ timeline.value=(video.currentTime/video.duration)*100||0;
+ timeText.textContent=format(video.currentTime)+" / "+format(video.duration);
+};
 
-  let cur = format(video.currentTime);
-  let dur = format(video.duration);
-  timeText.textContent = `${cur} / ${dur}`;
-});
+timeline.oninput=()=>{
+ video.currentTime=(timeline.value/100)*video.duration;
+};
 
-// seek
-timeline.addEventListener('input',()=>{
-  video.currentTime = (timeline.value/100)*video.duration;
-});
+function format(t){if(!t)return"0:00";let m=Math.floor(t/60);let s=Math.floor(t%60);return m+":"+(s<10?"0":"")+s;}
 
-function format(t){
-  if(!t) return "0:00";
-  let m = Math.floor(t/60);
-  let s = Math.floor(t%60);
-  return `${m}:${s<10?'0':''}${s}`;
-}
+// FIXED BUTTONS
+start.onclick=()=>{video.currentTime=0;video.play();};
+end.onclick=()=>{if(video.duration){video.currentTime=video.duration-0.1;video.pause();}};
+forward.onclick=()=>{video.currentTime=Math.min(video.currentTime+0.1,video.duration);};
+backward.onclick=()=>{video.currentTime=Math.max(video.currentTime-0.1,0);};
+forward_fast.onclick=()=>{video.currentTime=Math.min(video.currentTime+2,video.duration);};
+backward_fast.onclick=()=>{video.currentTime=Math.max(video.currentTime-2,0);};
 
-// controls
-forward.onclick=()=>{ video.currentTime+=0.1 };
-backward.onclick=()=>{ video.currentTime-=0.1 };
-forward_fast.onclick=()=>{ video.currentTime+=2 };
-backward_fast.onclick=()=>{ video.currentTime-=2 };
-start.onclick=()=>{ video.currentTime=0; video.play(); };
-end.onclick=()=>{ video.currentTime=video.duration-0.2; };
+// play pause
+playBtn.onclick=()=>{
+ if(video.paused){video.play();playBtn.textContent="⏸";} 
+ else{video.pause();playBtn.textContent="▶";}
+};
 
-// decision
-out.onclick=()=>showDecision("OUT","red");
-notout.onclick=()=>showDecision("NOT OUT","green");
-
-function showDecision(text,color){
-  decision.textContent = text;
-  decision.style.background = color;
-  decision.classList.add("show");
-
-  setTimeout(()=>{
-    decision.classList.remove("show");
-  },1500);
-}
+// slow / normal toggle
+let slow=false;
+slowBtn.onclick=()=>{
+ slow=!slow;
+ if(slow){video.playbackRate=0.25;slowBtn.textContent="⚡ Normal";}
+ else{video.playbackRate=1;slowBtn.textContent="🐢 0.25x";}
+};
 </script>
-
 </body>
 </html>
