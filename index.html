@@ -5,164 +5,174 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CrickDRS</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+
+    body,html{
+      height:100%; display:flex; justify-content:center; align-items:center;
+      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     }
 
-    body, html {
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    .container{
+      text-align:center; width:100%; max-width:750px; padding:25px;
+      border-radius:20px; background:rgba(0,0,0,0.75);
+      backdrop-filter:blur(15px);
+      box-shadow:0 15px 40px rgba(0,0,0,0.5);
     }
 
-    .container {
-      text-align: center;
-      width: 100%;
-      max-width: 700px;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(10px);
-      animation: fadeIn 1s ease-in-out;
+    h1{
+      font-size:3rem; color:#00e6ff; margin-bottom:15px;
+      text-shadow:0 0 20px rgba(0,230,255,0.8);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
+    .video{
+      width:100%; border:4px solid #00e6ff; border-radius:20px;
+      background:black; box-shadow:0 0 30px rgba(0,230,255,0.6);
     }
 
-    h1 {
-      font-size: 2.8rem;
-      color: #ffcc00;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 10px rgba(255, 204, 0, 0.8);
+    /* Timeline */
+    .timeline{
+      width:100%; margin-top:10px;
     }
 
-    .video {
-      width: 100%;
-      max-width: 100%;
-      border: 4px solid #ffcc00;
-      border-radius: 15px;
-      background-color: black;
+    .time-text{
+      color:white; font-size:0.9rem; margin-top:5px;
     }
 
-    .controls {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
+    .controls{
+      margin-top:20px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
     }
 
-    .btn {
-      background: #ffcc00;
-      border: none;
-      color: black;
-      padding: 12px 25px;
-      font-size: 1.2rem;
-      margin: 5px;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(255, 204, 0, 0.5);
-      transition: all 0.3s ease-in-out;
-      font-weight: bold;
+    .btn{
+      border:none; color:white; padding:10px 18px;
+      border-radius:25px; cursor:pointer; font-weight:bold;
+      transition:0.3s; box-shadow:0 5px 15px rgba(0,0,0,0.4);
     }
 
-    .btn:hover {
-      background: #ffaa00;
-      transform: scale(1.1);
+    #start{background:linear-gradient(45deg,#00ff87,#00c9a7);}    
+    #end{background:linear-gradient(45deg,#ff416c,#ff4b2b);}    
+    #forward{background:linear-gradient(45deg,#36d1dc,#5b86e5);}    
+    #backward{background:linear-gradient(45deg,#8360c3,#2ebf91);}    
+    #forward-fast{background:linear-gradient(45deg,#f7971e,#ffd200);}    
+    #backward-fast{background:linear-gradient(45deg,#ff6a00,#ee0979);}    
+    #out{background:red;}    
+    #notout{background:green;}    
+
+    .btn:hover{ transform:scale(1.1); filter:brightness(1.2); }
+
+    .upload-section{ margin-top:20px; }
+
+    .upload-btn{
+      background:linear-gradient(45deg,#ff512f,#dd2476);
+      padding:10px 20px; border-radius:25px; color:white; cursor:pointer;
+      font-weight:bold; text-decoration:none;
     }
 
-    .upload-section {
-      margin-top: 20px;
+    input[type="file"]{ display:none; }
+
+    /* Decision overlay */
+    .decision{
+      position:absolute; top:0; left:0; width:100%; height:100%;
+      display:flex; justify-content:center; align-items:center;
+      font-size:4rem; font-weight:bold; color:white;
+      opacity:0; pointer-events:none; transition:0.5s;
     }
 
-    .upload-btn {
-      background: #ff4500;
-      color: white;
-      padding: 12px 25px;
-      font-size: 1.2rem;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(255, 69, 0, 0.5);
-      text-decoration: none;
-      font-weight: bold;
-    }
+    .decision.show{ opacity:1; }
 
-    .upload-btn:hover {
-      background: #ff6347;
-      transform: scale(1.05);
-    }
-
-    input[type="file"] {
-      display: none;
-    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>CrickDRS</h1>
+
+<div class="container">
+  <h1>🎯 CrickDRS</h1>
+
+  <div style="position:relative;">
     <video id="video" class="video"></video>
-    <div class="controls">
-      <button id="backward-fast" class="btn">⏪ Backward (Fast)</button>
-      <button id="backward" class="btn">⏪ Backward</button>
-      <button id="forward" class="btn">⏩ Forward</button>
-      <button id="forward-fast" class="btn">⏩ Forward (Fast)</button>
-    </div>
-    <div class="upload-section">
-      <label for="fileUpload" class="upload-btn">📂 Upload Video</label>
-      <input type="file" id="fileUpload" accept="video/*">
-    </div>
+    <div id="decision" class="decision"></div>
   </div>
 
-  <script>
-    const video = document.getElementById('video');
-    const fileUpload = document.getElementById('fileUpload');
-    const forwardButton = document.getElementById('forward');
-    const backwardButton = document.getElementById('backward');
-    const forwardFastButton = document.getElementById('forward-fast');
-    const backwardFastButton = document.getElementById('backward-fast');
+  <!-- Timeline -->
+  <input type="range" id="timeline" class="timeline" min="0" max="100" value="0">
+  <div id="timeText" class="time-text">0:00 / 0:00</div>
 
-    fileUpload.addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const fileURL = URL.createObjectURL(file);
-        video.src = fileURL;
-        video.load();
-      }
-    });
+  <div class="controls">
+    <button id="start" class="btn">⏮</button>
+    <button id="backward-fast" class="btn">⏪</button>
+    <button id="backward" class="btn">⬅</button>
+    <button id="forward" class="btn">➡</button>
+    <button id="forward-fast" class="btn">⏩</button>
+    <button id="end" class="btn">⏭</button>
+  </div>
 
-    forwardButton.addEventListener('click', () => {
-      video.currentTime = Math.min(video.currentTime + 0.10, video.duration);
-      video.play();
-      setTimeout(() => video.pause(), 100);
-    });
+  <!-- Decision buttons -->
+  <div class="controls">
+    <button id="out" class="btn">❌ OUT</button>
+    <button id="notout" class="btn">✅ NOT OUT</button>
+  </div>
 
-    backwardButton.addEventListener('click', () => {
-      video.currentTime = Math.max(0, video.currentTime - 0.10);
-      video.play();
-      setTimeout(() => video.pause(), 100);
-    });
+  <div class="upload-section">
+    <label for="fileUpload" class="upload-btn">📂 Upload Video</label>
+    <input type="file" id="fileUpload" accept="video/*">
+  </div>
+</div>
 
-    forwardFastButton.addEventListener('click', () => {
-      video.currentTime = Math.min(video.currentTime + 2, video.duration);
-      video.play();
-      setTimeout(() => video.pause(), 2000);
-    });
+<script>
+const video = document.getElementById('video');
+const timeline = document.getElementById('timeline');
+const timeText = document.getElementById('timeText');
+const decision = document.getElementById('decision');
 
-    backwardFastButton.addEventListener('click', () => {
-      video.currentTime = Math.max(0, video.currentTime - 2);
-      video.play();
-      setTimeout(() => video.pause(), 2000);
-    });
+// upload
+fileUpload.addEventListener('change',(e)=>{
+  const file = e.target.files[0];
+  if(file){
+    video.src = URL.createObjectURL(file);
+  }
+});
 
-    video.addEventListener('ended', () => video.pause());
-  </script>
+// timeline update
+video.addEventListener('timeupdate',()=>{
+  timeline.value = (video.currentTime / video.duration) * 100 || 0;
+
+  let cur = format(video.currentTime);
+  let dur = format(video.duration);
+  timeText.textContent = `${cur} / ${dur}`;
+});
+
+// seek
+timeline.addEventListener('input',()=>{
+  video.currentTime = (timeline.value/100)*video.duration;
+});
+
+function format(t){
+  if(!t) return "0:00";
+  let m = Math.floor(t/60);
+  let s = Math.floor(t%60);
+  return `${m}:${s<10?'0':''}${s}`;
+}
+
+// controls
+forward.onclick=()=>{ video.currentTime+=0.1 };
+backward.onclick=()=>{ video.currentTime-=0.1 };
+forward_fast.onclick=()=>{ video.currentTime+=2 };
+backward_fast.onclick=()=>{ video.currentTime-=2 };
+start.onclick=()=>{ video.currentTime=0; video.play(); };
+end.onclick=()=>{ video.currentTime=video.duration-0.2; };
+
+// decision
+out.onclick=()=>showDecision("OUT","red");
+notout.onclick=()=>showDecision("NOT OUT","green");
+
+function showDecision(text,color){
+  decision.textContent = text;
+  decision.style.background = color;
+  decision.classList.add("show");
+
+  setTimeout(()=>{
+    decision.classList.remove("show");
+  },1500);
+}
+</script>
+
 </body>
 </html>
